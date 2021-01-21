@@ -1,5 +1,6 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { IsEmail, IsNotEmpty, Length } from 'class-validator';
+import { Department } from 'src/department/entities/department.entity';
 import { CreateEmployeeDto } from './create-employee.dto';
 
 export class UpdateEmployeeDto extends PartialType(CreateEmployeeDto) {
@@ -20,4 +21,6 @@ export class UpdateEmployeeDto extends PartialType(CreateEmployeeDto) {
   @IsNotEmpty({ message: 'Email không đc để trống' })
   @IsEmail()
   email: string;
+
+  department_id: Department;
 }

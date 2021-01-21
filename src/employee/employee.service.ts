@@ -45,7 +45,7 @@ export class EmployeeService {
     message: string;
     all: EmployeeDocument[];
   }> {
-    const all = await this.EmployeeModel.find();
+    const all = await this.EmployeeModel.find().populate('department_id');
     return {
       message: 'Tất cả employee',
       all,
@@ -53,8 +53,14 @@ export class EmployeeService {
   }
 
   async findOne(id: string): Promise<EmployeeDocument> {
-    const updateOne = await this.EmployeeModel.findById(id);
+    const updateOne = await this.EmployeeModel.findById(id).populate(
+      'department_id',
+    );
     return updateOne;
+  }
+
+  async viewEmploy(id: any) {
+    return await this.EmployeeModel.find({ department_id: id });
   }
 
   async update(

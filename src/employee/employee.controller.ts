@@ -34,7 +34,7 @@ export const storage = {
   }),
 };
 
-@UseGuards(JwtAuthGuard)
+// @UseGuards(JwtAuthGuard)
 @Controller('employee')
 @UsePipes(new ValidationPipe())
 export class EmployeeController {
@@ -42,7 +42,10 @@ export class EmployeeController {
 
   @Post()
   @UseInterceptors(FileInterceptor('photo', storage))
-  create(@Body() createEmployeeDto: CreateEmployeeDto, @UploadedFile() file) {
+  create(
+    @Body() createEmployeeDto: CreateEmployeeDto,
+    @UploadedFile() file: any,
+  ) {
     return this.employeeService.create(createEmployeeDto, file);
   }
 

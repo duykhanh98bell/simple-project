@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { EmployeeService } from 'src/employee/employee.service';
 import { CreateDepartmentDto } from './dto/create-department.dto';
 import { UpdateDepartmentDto } from './dto/update-department.dto';
 import { Department, DepartmentDocument } from './entities/department.entity';
@@ -10,6 +11,7 @@ export class DepartmentService {
   constructor(
     @InjectModel(Department.name)
     private DepartmentModel: Model<DepartmentDocument>,
+    private EmployeeService: EmployeeService,
   ) {}
 
   async create(
@@ -33,6 +35,10 @@ export class DepartmentService {
 
   async findOne(id: string): Promise<DepartmentDocument | undefined> {
     return await this.DepartmentModel.findById(id);
+  }
+
+  async view(id: any) {
+    return await this.EmployeeService.viewEmploy(id);
   }
 
   async update(

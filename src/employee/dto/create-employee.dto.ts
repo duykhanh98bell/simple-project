@@ -1,4 +1,5 @@
 import { IsEmail, IsNotEmpty, Length } from 'class-validator';
+import { Department } from 'src/department/entities/department.entity';
 
 export class CreateEmployeeDto {
   @IsNotEmpty({ message: 'Tên không được bỏ trống' })
@@ -18,4 +19,6 @@ export class CreateEmployeeDto {
   @IsNotEmpty({ message: 'Email không đc để trống' })
   @IsEmail()
   email: string;
+
+  department_id: Department;
 }
