@@ -19,18 +19,18 @@ import { LoginDto } from './dto/login.dto';
 import { ChangePass } from './dto/change-pass.dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
 
-@Controller('login')
+@Controller('auth')
 @UsePipes(new ValidationPipe())
 export class LoginController {
   constructor(private readonly loginService: LoginService) {}
 
-  @Post()
+  @Post('login')
   async login(@Body() loginDto: LoginDto, @Res() res: any) {
     return await this.loginService.login(loginDto, res);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Put()
+  @Put('change')
   async changePass(
     @Body() changePass: ChangePass,
     @Req() req: any,

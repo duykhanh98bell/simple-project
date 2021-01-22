@@ -16,16 +16,23 @@ export class LoginService {
     @InjectModel('User') private UserModel: Model<UserDocument>,
     private readonly jwtService: JwtService,
   ) {}
-  async login(loginDto: LoginDto, res: any): Promise<any> {
+  async login(loginDto: LoginDto, res: any) {
     const user = await this.UserModel.findOne({ username: loginDto.username });
     if (!user) return res.json({ message: 'Username not exist' });
     const match = await bcrypt.compare(loginDto.password, user.password);
     if (!match) return res.json({ message: 'password fail' });
-
-    const access_token = await this.jwtService.signAsync({ user: user });
-    return res.json({
-      access_token,
-    });
+    const access_token = await this.jwtService.sign({ user: user });
+    if (user.loginfirst === true) {
+      return res.json({
+        message: 'Đăng nhập thành công',
+        access_token,
+      });
+    } else {
+      return res.json({
+        message: `Connect PUT ${process.env.HOST}:${process.env.PORT}/auth/change change password`,
+        access_token,
+      });
+    }
   }
 
   async change(changePass: ChangePass, req: any, res: any) {
@@ -40,26 +47,11 @@ export class LoginService {
       {
         $set: {
           password: hashedPass,
+          loginfirst: true,
         },
       },
       { new: true },
     );
     return res.json({ message: 'Thay đổi mật khẩu thành công' });
-  }
-
-  findAll() {
-    return `This action returns all login`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} login`;
-  }
-
-  update(id: number, updateLoginDto: UpdateLoginDto) {
-    return `This action updates a #${id} login`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} login`;
   }
 }

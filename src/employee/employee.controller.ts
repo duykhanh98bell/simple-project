@@ -34,7 +34,7 @@ export const storage = {
   }),
 };
 
-// @UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 @Controller('employee')
 @UsePipes(new ValidationPipe())
 export class EmployeeController {

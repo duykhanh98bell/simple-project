@@ -20,5 +20,6 @@ export class CreateEmployeeDto {
   @IsEmail()
   email: string;
 
+  @IsNotEmpty({ message: 'Phòng ban k đc trống' })
   department_id: Department;
 }
