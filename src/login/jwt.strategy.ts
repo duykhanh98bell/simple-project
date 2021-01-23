@@ -1,11 +1,9 @@
 /* eslint-disable prettier/prettier */
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
-import {
-  ExecutionContext,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { createBlackList } from 'jwt-blacklist';
+import { blacklist } from './blacklist';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -17,15 +15,20 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  handleRequest(err, user, info) {
-    // You can throw an exception based on either "info" or "err" arguments
-    if (err || !user) {
-      throw err || new UnauthorizedException();
-    }
-    return user;
-  }
-
   async validate(payload: any) {
+    if (blacklist.array.length) {
+      let i = 0;
+      blacklist.array.forEach((token) => {
+        i++;
+        const check = payload.iat + '-' + payload.exp;
+        if (token === check) {
+          throw console.error();
+        }
+      });
+      if (i === 1000) {
+        delete blacklist.array;
+      }
+    }
     return { ...payload.user };
   }
 }

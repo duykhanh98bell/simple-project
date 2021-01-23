@@ -1,15 +1,16 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { User, UserDocument } from 'src/users/entities/user.entity';
+import { UserDocument } from 'src/users/entities/user.entity';
 import { ChangePass } from './dto/change-pass.dto';
-import { CreateLoginDto } from './dto/create-login.dto';
 import { LoginDto } from './dto/login.dto';
-import { UpdateLoginDto } from './dto/update-login.dto';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const bcrypt = require('bcrypt');
-const blacklist = require('express-jwt-blacklist');
+import { createBlackList } from 'jwt-blacklist';
+import { blacklist } from './blacklist';
+const jwt = require('jsonwebtoken');
 
 @Injectable()
 export class LoginService {
@@ -23,7 +24,9 @@ export class LoginService {
     const match = await bcrypt.compare(loginDto.password, user.password);
     if (!match) return res.json({ message: 'password fail' });
     const access_token = await this.jwtService.sign({ user: user });
-
+    if (access_token) {
+      req.session.tok = access_token;
+    }
     if (user.loginfirst === true) {
       return res.json({
         message: 'Đăng nhập thành công',
@@ -58,8 +61,10 @@ export class LoginService {
   }
 
   async logout(req: any, res: any) {
-    const token = req.header('Authorization').slice(7);
-    blacklist.revoke(token);
+    if (req.session.tok) {
+      const token = jwt.verify(req.session.tok, process.env.TOKEN_SECRET);
+      blacklist.array.push(token.iat + '-' + token.exp);
+    }
     res.sendStatus(200);
   }
 }
