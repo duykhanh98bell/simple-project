@@ -17,15 +17,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   async validate(payload: any) {
     if (blacklist.array.length) {
-      let i = 0;
       blacklist.array.forEach((token) => {
-        i++;
         const check = payload.iat + '-' + payload.exp;
         if (token === check) {
           throw console.error();
         }
       });
-      if (i === 1000) {
+      if (blacklist.array.length === 1000) {
         delete blacklist.array;
       }
     }
