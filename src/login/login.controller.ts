@@ -25,8 +25,8 @@ export class LoginController {
   constructor(private readonly loginService: LoginService) {}
 
   @Post('login')
-  async login(@Body() loginDto: LoginDto, @Res() res: any) {
-    return await this.loginService.login(loginDto, res);
+  async login(@Body() loginDto: LoginDto, @Req() req: any, @Res() res: any) {
+    return await this.loginService.login(loginDto, req, res);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -37,5 +37,11 @@ export class LoginController {
     @Res() res: any,
   ) {
     return await this.loginService.change(changePass, req, res);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('logout')
+  async logout(@Req() req: any, @Res() res: any) {
+    return await this.loginService.logout(req, res);
   }
 }

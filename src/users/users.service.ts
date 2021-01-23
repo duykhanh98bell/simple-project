@@ -16,7 +16,7 @@ export class UsersService {
     @InjectModel(User.name) private UserModel: Model<UserDocument>,
   ) {}
 
-  public example(passRandom: string, email): void {
+  public example(passRandom: string, email: string): void {
     this.mailerService
       .sendMail({
         to: email, // List of receivers email address

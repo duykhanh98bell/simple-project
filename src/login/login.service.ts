@@ -9,6 +9,7 @@ import { LoginDto } from './dto/login.dto';
 import { UpdateLoginDto } from './dto/update-login.dto';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const bcrypt = require('bcrypt');
+const blacklist = require('express-jwt-blacklist');
 
 @Injectable()
 export class LoginService {
@@ -16,12 +17,13 @@ export class LoginService {
     @InjectModel('User') private UserModel: Model<UserDocument>,
     private readonly jwtService: JwtService,
   ) {}
-  async login(loginDto: LoginDto, res: any) {
+  async login(loginDto: LoginDto, req: any, res: any) {
     const user = await this.UserModel.findOne({ username: loginDto.username });
     if (!user) return res.json({ message: 'Username not exist' });
     const match = await bcrypt.compare(loginDto.password, user.password);
     if (!match) return res.json({ message: 'password fail' });
     const access_token = await this.jwtService.sign({ user: user });
+
     if (user.loginfirst === true) {
       return res.json({
         message: 'Đăng nhập thành công',
@@ -29,7 +31,7 @@ export class LoginService {
       });
     } else {
       return res.json({
-        message: `Connect PUT ${process.env.HOST}:${process.env.PORT}/auth/change change password`,
+        message: `Connect PUT ${process.env.HOST}/auth/change change password`,
         access_token,
       });
     }
@@ -53,5 +55,11 @@ export class LoginService {
       { new: true },
     );
     return res.json({ message: 'Thay đổi mật khẩu thành công' });
+  }
+
+  async logout(req: any, res: any) {
+    const token = req.header('Authorization').slice(7);
+    blacklist.revoke(token);
+    res.sendStatus(200);
   }
 }
