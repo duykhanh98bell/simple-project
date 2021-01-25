@@ -11,26 +11,24 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
   providers: [UsersService],
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-    MailerModule.forRootAsync({
-      useFactory: () => ({
-        transport: {
-          service: 'gmail',
-          auth: {
-            user: process.env.MAIL_ID,
-            pass: process.env.MAIL_PASS,
-          },
+    MailerModule.forRoot({
+      transport: {
+        service: 'gmail',
+        auth: {
+          user: process.env.MAIL_ID,
+          pass: process.env.MAIL_PASS,
         },
-        defaults: {
-          from: '"nest-modules" <modules@nestjs.com>',
+      },
+      defaults: {
+        from: '"nest-modules" <modules@nestjs.com>',
+      },
+      template: {
+        dir: process.cwd() + '/templates/',
+        adapter: new HandlebarsAdapter(), // or new PugAdapter() or new EjsAdapter()
+        options: {
+          strict: true,
         },
-        template: {
-          dir: process.cwd() + '/templates/',
-          adapter: new HandlebarsAdapter(), // or new PugAdapter() or new EjsAdapter()
-          options: {
-            strict: true,
-          },
-        },
-      }),
+      },
     }),
   ],
 })

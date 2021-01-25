@@ -71,3 +71,134 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](LICENSE).
+
+## Database
+
+- employees:
+
+* name: Tên nhân viên.
+* jobtitle: Vị trí.
+* cellphone: Số điện thoại.
+* email: email.
+* department_id: Khóa ngoại ref: department.
+* photo: avatar nhân viên.
+
+- departments:
+
+* name: Tên phòng ban.
+* officephone: Số điện thoại.
+* manager: Tên trưởng phòng.
+
+- users:
+
+* username: Tên tài khoản admin.
+* password: Mật khẩu.
+* email: Email.
+* role: quyền,
+* loginfisrt: true(đã đăng nhập lần đầu) false(Chưa đăng nhập lần đầu)
+
+## Tạo tài khoản: Authorization
+
+POST http://localhost:3000/users
+
+{
+"username": "duykhanh98",
+"email": "duykhanh98bell@gmail.com",
+"role": "admin"
+}
+Mật khẩu sẽ được gửi vào email
+
+## Đổi mật khẩu: Authorization
+
+PUT http://localhost:3000/auth/change
+
+- password: Mật khẩu được gửi qua email
+- newpassword: Mật khẩu mới
+- repassword: Xác nhận mật khẩu vừa nhập
+  {
+  "password": "L308dPl",
+  "newpassword": "123456",
+  "repassword": "123456"
+  }
+
+## Đăng nhập:
+
+POST http://localhost:3000/auth/login
+
+{
+"username": "hoangha2004",
+"password": "123456"
+}
+
+## Đăng xuất Authorization
+
+DELETE http://localhost:3000/auth/logout
+
+## Tạo phòng ban: Authorization
+
+POST http://localhost:3000/department
+
+{
+"name": "PM",
+"officephone": "0987654321",
+"manager": "trungnt"
+}
+
+## Danh sách tất cả phòng ban: Authorization
+
+GET http://localhost:3000/department
+
+## Xem chi tiết phòng ban: Authorization
+
+GET http://localhost:3000/department/:id
+
+## Sửa phòng ban: Authorization
+
+PUT http://localhost:3000/department/:id
+{
+"name": "Develop",
+"officephone": "0336378689",
+"manager": "khanhdd"
+}
+
+## Xóa phòng ban: Authorization
+
+DELETE http://localhost:3000/department/:id
+
+## Tạo mới nhân viên: Authorization
+
+POST http://localhost:3000/employee
+
+- name: Tên nhân viên,
+- photo: file,
+- jobtitle:
+- cellphone:
+- email:
+- department_id: id phòng ban
+
+## Danh sách nhân viên: Authorization
+
+GET http://localhost:3000/employee
+
+## Xem chi tiết nhân viên: Authorization
+
+GET http://localhost:3000/employee/:id
+
+## Sửa nhân viên: Authorization
+
+PUT http://localhost:3000/employee/:id
+
+- name: Tên nhân viên,
+- photo: file (Có thể thay hoặc không)
+- jobtitle:
+- cellphone:
+- email:
+- department_id: id phòng ban
+
+## Xóa nhân viên: Authorization
+
+DELETE http://localhost:3000/employee/:id
+
+## Xem phòng ban có những nhân viên nào: Authorization
+
+GET http://localhost:3000/department/employeein/:id phòng ban
