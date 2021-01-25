@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { InjectModel } from '@nestjs/mongoose';
+import { getModelToken, InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { UserDocument } from 'src/users/entities/user.entity';
 import { ChangePass } from './dto/change-pass.dto';
@@ -24,9 +24,7 @@ export class LoginService {
     const match = await bcrypt.compare(loginDto.password, user.password);
     if (!match) return res.json({ message: 'password fail' });
     const access_token = await this.jwtService.sign({ user: user });
-    if (access_token) {
-      req.session.tok = access_token;
-    }
+
     if (user.loginfirst === true) {
       return res.json({
         message: 'Đăng nhập thành công',
@@ -61,8 +59,9 @@ export class LoginService {
   }
 
   async logout(req: any, res: any) {
-    if (req.session.tok) {
-      const token = jwt.verify(req.session.tok, process.env.TOKEN_SECRET);
+    const tokenPush = req.header('Authorization').slice(7);
+    if (tokenPush) {
+      const token = jwt.verify(tokenPush, process.env.TOKEN_SECRET);
       blacklist.array.push(token.iat + '-' + token.exp);
     }
     res.sendStatus(200);

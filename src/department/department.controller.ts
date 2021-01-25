@@ -27,7 +27,14 @@ export class DepartmentController {
     @Body() createDepartmentDto: CreateDepartmentDto,
     @Res() res: any,
   ) {
-    return await this.departmentService.create(createDepartmentDto, res);
+    const depart = await this.departmentService.create(
+      createDepartmentDto,
+      res,
+    );
+    return {
+      message: 'Tao thanh cong',
+      depart,
+    };
   }
 
   @Get()
@@ -46,15 +53,26 @@ export class DepartmentController {
   }
 
   @Put(':id')
-  update(
+  async update(
     @Param('id') id: any,
     @Body() updateDepartmentDto: UpdateDepartmentDto,
   ) {
-    return this.departmentService.update(id, updateDepartmentDto);
+    const updateDepart = await this.departmentService.update(
+      id,
+      updateDepartmentDto,
+    );
+    return {
+      message: 'Cap nhat thanh cong',
+      updateDepart,
+    };
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.departmentService.remove(id);
+  async remove(@Param('id') id: string) {
+    const dlt = await this.departmentService.remove(id);
+    return {
+      message: 'Xoa thanh cong',
+      dlt,
+    };
   }
 }

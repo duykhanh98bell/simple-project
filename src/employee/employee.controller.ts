@@ -50,8 +50,12 @@ export class EmployeeController {
   }
 
   @Get()
-  findAll() {
-    return this.employeeService.findAll();
+  async findAll() {
+    const all = await this.employeeService.findAll();
+    return {
+      message: 'Tất cả employee',
+      all,
+    };
   }
 
   @Get(':id')
@@ -70,7 +74,11 @@ export class EmployeeController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.employeeService.remove(id);
+  async remove(@Param('id') id: string) {
+    const dele = await this.employeeService.remove(id);
+    return {
+      message: 'Xoa thanh cong',
+      dele,
+    };
   }
 }

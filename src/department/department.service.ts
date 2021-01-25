@@ -17,16 +17,13 @@ export class DepartmentService {
   async create(
     createDepartmentDto: CreateDepartmentDto,
     res: any,
-  ): Promise<{ message: string; depart: DepartmentDocument }> {
+  ): Promise<DepartmentDocument> {
     const check = await this.DepartmentModel.findOne({
       name: createDepartmentDto.name,
     });
     if (check) return res.json({ message: 'Tên phòng ban đã tồn tại' });
     const depart = await this.DepartmentModel.create(createDepartmentDto);
-    return {
-      message: 'Tao thanh cong',
-      depart,
-    };
+    return depart;
   }
 
   async findAll(): Promise<DepartmentDocument[]> {
@@ -44,31 +41,17 @@ export class DepartmentService {
   async update(
     id: string,
     updateDepartmentDto: UpdateDepartmentDto,
-  ): Promise<{
-    message: string;
-    updateDepart: DepartmentDocument;
-  }> {
+  ): Promise<DepartmentDocument> {
     const updateDepart = await this.DepartmentModel.findByIdAndUpdate(
       id,
       updateDepartmentDto,
       { new: true },
     );
-    return {
-      message: 'Cap nhat thanh cong',
-      updateDepart,
-    };
+    return updateDepart;
   }
 
-  async remove(
-    id: string,
-  ): Promise<{
-    message: string;
-    dlt: DepartmentDocument;
-  }> {
+  async remove(id: string): Promise<DepartmentDocument> {
     const dlt = await this.DepartmentModel.findByIdAndDelete(id);
-    return {
-      message: 'Xoa thanh cong',
-      dlt,
-    };
+    return dlt;
   }
 }

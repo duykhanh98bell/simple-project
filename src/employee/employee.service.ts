@@ -41,15 +41,9 @@ export class EmployeeService {
     };
   }
 
-  async findAll(): Promise<{
-    message: string;
-    all: EmployeeDocument[];
-  }> {
+  async findAll(): Promise<EmployeeDocument[]> {
     const all = await this.EmployeeModel.find().populate('department_id');
-    return {
-      message: 'Tất cả employee',
-      all,
-    };
+    return all;
   }
 
   async findOne(id: string): Promise<EmployeeDocument> {
@@ -104,18 +98,10 @@ export class EmployeeService {
     }
   }
 
-  async remove(
-    id: string,
-  ): Promise<{
-    message: string;
-    dele: EmployeeDocument;
-  }> {
+  async remove(id: string): Promise<EmployeeDocument> {
     const check = await this.EmployeeModel.findById(id);
     await fs.unlinkSync('photo/' + check.photo);
     const dele = await this.EmployeeModel.findByIdAndDelete(id);
-    return {
-      message: 'Xoa thanh cong',
-      dele,
-    };
+    return dele;
   }
 }
