@@ -20,18 +20,18 @@ export class LoginService {
   ) {}
   async login(loginDto: LoginDto, req: any, res: any) {
     const user = await this.UserModel.findOne({ username: loginDto.username });
-    if (!user) return res.json({ message: 'Username not exist' });
+    if (!user) return res.status(401).json({ message: 'Email not exist' });
     const match = await bcrypt.compare(loginDto.password, user.password);
-    if (!match) return res.json({ message: 'password fail' });
+    if (!match) return res.status(401).json({ message: 'Password fail' });
     const access_token = await this.jwtService.sign({ user: user });
 
     if (user.loginfirst === true) {
-      return res.json({
+      return res.status(200).json({
         message: 'Đăng nhập thành công',
         access_token,
       });
     } else {
-      return res.json({
+      return res.status(202).json({
         message: `Connect PUT ${process.env.HOST}/auth/change change password`,
         access_token,
       });
@@ -41,9 +41,10 @@ export class LoginService {
   async change(changePass: ChangePass, req: any, res: any) {
     const user = await req.user;
     if (changePass.newpassword != changePass.repassword)
-      return res.json({ message: 'Mật khẩu không trùng khớp' });
+      return res.status(400).json({ message: 'Mật khẩu không trùng khớp' });
     const match = await bcrypt.compare(changePass.password, user.password);
-    if (!match) return res.json({ message: 'Mật khẩu không chính xác' });
+    if (!match)
+      return res.status(400).json({ message: 'Mật khẩu không chính xác' });
     const hashedPass = await bcrypt.hash(changePass.newpassword, 12);
     await this.UserModel.findByIdAndUpdate(
       user._id,
@@ -55,7 +56,7 @@ export class LoginService {
       },
       { new: true },
     );
-    return res.json({ message: 'Thay đổi mật khẩu thành công' });
+    return res.status(200).json({ message: 'Thay đổi mật khẩu thành công' });
   }
 
   async logout(req: any, res: any) {

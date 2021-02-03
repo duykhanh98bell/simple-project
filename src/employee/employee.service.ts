@@ -47,9 +47,7 @@ export class EmployeeService {
   }
 
   async findOne(id: string): Promise<EmployeeDocument> {
-    const updateOne = await this.EmployeeModel.findById(id).populate(
-      'department_id',
-    );
+    const updateOne = await this.EmployeeModel.findById(id);
     return updateOne;
   }
 
@@ -87,6 +85,7 @@ export class EmployeeService {
             jobtitle: updateEmployeeDto.jobtitle,
             cellphone: updateEmployeeDto.cellphone,
             email: updateEmployeeDto.email,
+            department_id: updateEmployeeDto.department_id,
           },
         },
         { new: true },

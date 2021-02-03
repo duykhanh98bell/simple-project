@@ -44,4 +44,12 @@ export class UsersService {
       createNew,
     };
   }
+
+  async read(): Promise<UserDocument[]> {
+    return this.UserModel.find();
+  }
+
+  async remove(id: string) {
+    return this.UserModel.findByIdAndDelete(id);
+  }
 }

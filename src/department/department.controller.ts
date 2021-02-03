@@ -31,10 +31,10 @@ export class DepartmentController {
       createDepartmentDto,
       res,
     );
-    return {
+    return res.json({
       message: 'Tao thanh cong',
       depart,
-    };
+    });
   }
 
   @Get()
