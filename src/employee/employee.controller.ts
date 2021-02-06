@@ -18,7 +18,7 @@ import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import path = require('path');
-import { JwtAuthGuard } from 'src/login/jwt-auth.guard';
+import { JwtAuthGuard } from '../login/jwt-auth.guard';
 const multer = require('multer');
 
 export const storage = {

@@ -1,20 +1,35 @@
+import { CanActivate } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { LoginDto } from './dto/login.dto';
 import { LoginController } from './login.controller';
 import { LoginService } from './login.service';
 
 describe('LoginController', () => {
-  let controller: LoginController;
+  let loginController: LoginController;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    // const mock_ForceFailGuard: CanActivate = {
+    //   canActivate: jest.fn(() => true),
+    // };
+
+    const app: TestingModule = await Test.createTestingModule({
       controllers: [LoginController],
       providers: [LoginService],
-    }).compile();
+    })
+      // .overrideGuard(ForceFailGuard)
+      // .useValue(mock_ForceFailGuard)
+      .compile();
 
-    controller = module.get<LoginController>(LoginController);
+    loginController = app.get<LoginController>(LoginController);
   });
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
+  describe('root', () => {
+    it('should return token', () => {
+      const user: LoginDto = {
+        username: 'duykhanh98',
+        password: '123456',
+      };
+      expect(loginController.login).toBe('Hello World!');
+    });
   });
 });

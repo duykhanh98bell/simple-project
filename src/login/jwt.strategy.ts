@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { createBlackList } from 'jwt-blacklist';
 import { blacklist } from './blacklist';
 
@@ -20,7 +20,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       blacklist.array.forEach((token) => {
         const check = payload.iat + '-' + payload.exp;
         if (token === check) {
-          throw console.error();
+          throw new HttpException('...', HttpStatus.UNAUTHORIZED);
         }
       });
       if (blacklist.array.length === 10000) {

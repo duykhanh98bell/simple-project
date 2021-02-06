@@ -11,7 +11,8 @@ import {
   ValidationPipe,
   UseGuards,
 } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/login/jwt-auth.guard';
+import { EmployeeService } from '../employee/employee.service';
+import { JwtAuthGuard } from '../login/jwt-auth.guard';
 import { DepartmentService } from './department.service';
 import { CreateDepartmentDto } from './dto/create-department.dto';
 import { UpdateDepartmentDto } from './dto/update-department.dto';
@@ -20,7 +21,10 @@ import { UpdateDepartmentDto } from './dto/update-department.dto';
 @Controller('department')
 @UsePipes(new ValidationPipe())
 export class DepartmentController {
-  constructor(private readonly departmentService: DepartmentService) {}
+  constructor(
+    private readonly departmentService: DepartmentService,
+    private readonly employeeService: EmployeeService,
+  ) {}
 
   @Post()
   async create(
@@ -49,7 +53,7 @@ export class DepartmentController {
 
   @Get('employeein/:id')
   async viewEmployee(@Param('id') id: string) {
-    return await this.departmentService.view(id);
+    return await this.employeeService.viewEmploy(id);
   }
 
   @Put(':id')

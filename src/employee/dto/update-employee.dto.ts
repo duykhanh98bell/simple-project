@@ -1,6 +1,6 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { IsEmail, IsNotEmpty, Length } from 'class-validator';
-import { Department } from 'src/department/entities/department.entity';
+import { Department } from '../../department/entities/department.entity';
 import { CreateEmployeeDto } from './create-employee.dto';
 
 export class UpdateEmployeeDto extends PartialType(CreateEmployeeDto) {

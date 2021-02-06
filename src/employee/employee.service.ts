@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Promise } from 'mongoose';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
@@ -31,8 +31,11 @@ export class EmployeeService {
         cellphone: createEmployeeDto.cellphone,
       }),
     ]);
-    if (checkEmail) return { message: 'Email da ton tai' };
-    if (checkPhone) return { message: 'So dien thoai da ton tai' };
+    if (checkEmail)
+      throw new HttpException('Email is exist', HttpStatus.BAD_REQUEST);
+    if (checkPhone)
+      throw new HttpException('Phone is exist', HttpStatus.BAD_REQUEST);
+
     createEmployeeDto.photo = file.filename;
     const create = await this.EmployeeModel.create(createEmployeeDto);
     return {

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import { MailerService } from '@nestjs-modules/mailer';
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 const randomstring = require('randomstring');
@@ -34,6 +34,21 @@ export class UsersService {
   }
 
   async create(createUserDto: CreateUserDto) {
+    const [checkUser, checkEmail] = await Promise.all([
+      this.UserModel.find({
+        username: createUserDto.username,
+      }),
+      this.UserModel.find({
+        email: createUserDto.email,
+      }),
+    ]);
+
+    if (checkUser.length > 0)
+      throw new HttpException('Username is exist', HttpStatus.BAD_REQUEST);
+
+    if (checkEmail.length > 0)
+      throw new HttpException('Email is exist', HttpStatus.BAD_REQUEST);
+
     const passRandom: string = await randomstring.generate(7);
     await this.example(passRandom, createUserDto.email);
     const hasedPass = await bcrypt.hash(passRandom, 12);
