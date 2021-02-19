@@ -42,11 +42,18 @@ export class EmployeeController {
 
   @Post()
   @UseInterceptors(FileInterceptor('photo', storage))
-  create(
+  async create(
     @Body() createEmployeeDto: CreateEmployeeDto,
     @UploadedFile() file: any,
   ) {
-    return this.employeeService.create(createEmployeeDto, file);
+    const saveEmployee = await this.employeeService.create(
+      createEmployeeDto,
+      file,
+    );
+    return {
+      message: 'Tạo thành công',
+      saveEmployee,
+    };
   }
 
   @Get()
@@ -65,12 +72,20 @@ export class EmployeeController {
 
   @Put(':id')
   @UseInterceptors(FileInterceptor('photo', storage))
-  update(
+  async update(
     @Param('id') id: string,
     @Body() updateEmployeeDto: UpdateEmployeeDto,
     @UploadedFile() file: any,
   ) {
-    return this.employeeService.update(id, updateEmployeeDto, file);
+    const postUpdate = await this.employeeService.update(
+      id,
+      updateEmployeeDto,
+      file,
+    );
+    return {
+      message: 'Cap nhat thanh cong',
+      postUpdate,
+    };
   }
 
   @Delete(':id')

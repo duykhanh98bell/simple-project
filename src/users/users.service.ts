@@ -61,10 +61,10 @@ export class UsersService {
   }
 
   async read(): Promise<UserDocument[]> {
-    return this.UserModel.find();
+    return await this.UserModel.find();
   }
 
   async remove(id: string) {
-    return this.UserModel.findByIdAndDelete(id);
+    return await this.UserModel.findByIdAndDelete(id);
   }
 }

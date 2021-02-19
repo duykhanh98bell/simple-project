@@ -31,10 +31,7 @@ export class DepartmentController {
     @Body() createDepartmentDto: CreateDepartmentDto,
     @Res() res: any,
   ) {
-    const depart = await this.departmentService.create(
-      createDepartmentDto,
-      res,
-    );
+    const depart = await this.departmentService.create(createDepartmentDto);
     return res.json({
       message: 'Tao thanh cong',
       depart,

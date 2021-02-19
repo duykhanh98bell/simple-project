@@ -13,7 +13,12 @@ import { ConfigModule } from '@nestjs/config';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    MongooseModule.forRoot(process.env.DATABASE),
+    MongooseModule.forRoot(process.env.DATABASE, {
+      useNewUrlParser: true,
+      useCreateIndex: true,
+      useUnifiedTopology: true,
+      useFindAndModify: false,
+    }),
     UsersModule,
     LoginModule,
     DepartmentModule,

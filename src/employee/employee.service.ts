@@ -1,4 +1,8 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Promise } from 'mongoose';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
@@ -16,13 +20,7 @@ export class EmployeeService {
   async create(
     createEmployeeDto: CreateEmployeeDto,
     file: any,
-  ): Promise<
-    | {
-        message: string;
-        create: EmployeeDocument;
-      }
-    | { message: string }
-  > {
+  ): Promise<EmployeeDocument> {
     const [checkEmail, checkPhone] = await Promise.all([
       this.EmployeeModel.findOne({
         email: createEmployeeDto.email,
@@ -31,27 +29,25 @@ export class EmployeeService {
         cellphone: createEmployeeDto.cellphone,
       }),
     ]);
-    if (checkEmail)
-      throw new HttpException('Email is exist', HttpStatus.BAD_REQUEST);
-    if (checkPhone)
-      throw new HttpException('Phone is exist', HttpStatus.BAD_REQUEST);
+    if (checkEmail) throw new BadRequestException('Email is exist');
+    if (checkPhone) throw new BadRequestException('Phone is exist');
 
     createEmployeeDto.photo = file.filename;
     const create = await this.EmployeeModel.create(createEmployeeDto);
-    return {
-      message: 'Tạo thành công',
-      create,
-    };
+    return create;
   }
 
   async findAll(): Promise<EmployeeDocument[]> {
-    const all = await this.EmployeeModel.find().populate('department_id');
+    const all = await this.EmployeeModel.find();
     return all;
   }
 
   async findOne(id: string): Promise<EmployeeDocument> {
-    const updateOne = await this.EmployeeModel.findById(id);
-    return updateOne;
+    const employee = await this.EmployeeModel.findOne({ _id: id });
+    if (!employee) {
+      throw new NotFoundException('not found employee');
+    }
+    return employee;
   }
 
   async viewEmploy(id: any) {
@@ -62,12 +58,10 @@ export class EmployeeService {
     id: string,
     updateEmployeeDto: UpdateEmployeeDto,
     file: any,
-  ): Promise<{
-    message: string;
-    update: EmployeeDocument;
-  }> {
+  ): Promise<EmployeeDocument> {
     if (file) {
-      const check = await this.EmployeeModel.findById(id);
+      const check = await this.findOne(id);
+
       await fs.unlinkSync('photo/' + check.photo);
       updateEmployeeDto.photo = file.filename;
       const update = await this.EmployeeModel.findByIdAndUpdate(
@@ -75,10 +69,7 @@ export class EmployeeService {
         updateEmployeeDto,
         { new: true },
       );
-      return {
-        message: 'Cap nhat thanh cong',
-        update,
-      };
+      return update;
     } else {
       const update = await this.EmployeeModel.findByIdAndUpdate(
         id,
@@ -93,17 +84,13 @@ export class EmployeeService {
         },
         { new: true },
       );
-      return {
-        message: 'Cap nhat thanh cong',
-        update,
-      };
+      return update;
     }
   }
 
   async remove(id: string): Promise<EmployeeDocument> {
-    const check = await this.EmployeeModel.findById(id);
+    const check = await this.findOne(id);
     await fs.unlinkSync('photo/' + check.photo);
-    const dele = await this.EmployeeModel.findByIdAndDelete(id);
-    return dele;
+    return await this.EmployeeModel.findOneAndDelete({ _id: id });
   }
 }
