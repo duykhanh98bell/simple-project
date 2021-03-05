@@ -1,4 +1,4 @@
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { DepartmentService } from './department.service';
@@ -49,14 +49,13 @@ describe('DepartmentService', () => {
       const department = TestUtil.giveAMeAValidDepartment();
       fakeDepartmentModel.findOne.mockReturnValue(department);
       const departmentFound = await service.findOne('600984b3b7486652e06d87de');
-      expect(departmentFound).toMatchObject({ name: department.name });
-      expect(fakeDepartmentModel.findOne).toHaveBeenCalledTimes(1);
+      expect(departmentFound.name).toBe(fakeDepartmentModel.findOne().name);
     });
 
     it('should return a exception when does not to find a department', async () => {
-      fakeDepartmentModel.findOne.mockReturnValue(null);
+      fakeDepartmentModel.findOne.mockReturnValue(NotFoundException);
       await service.findOne('600984b3b7486652e06d87dd').catch((err) => {
-        expect(err).toBeInstanceOf(NotFoundException);
+        expect(err).toBeInstanceOf(fakeDepartmentModel.findOne());
       });
       // expect(fakeDepartmentModel.findOne).toHaveBeenCalledTimes(1);
     });
@@ -64,31 +63,25 @@ describe('DepartmentService', () => {
 
   describe('Create Department', () => {
     it('should create a department', async () => {
-      const department = TestUtil.giveAMeAValidDepartment();
-      fakeDepartmentModel.save.mockReturnValue(department);
-      fakeDepartmentModel.create.mockReturnValue(department);
-      const saveDepartment = await service.create(department);
-      expect(saveDepartment).toMatchObject(department);
-      expect(fakeDepartmentModel.create).toHaveBeenCalledTimes(1);
-      // expect(fakeDepartmentModel.save).toHaveBeenCalledTimes(1);
-    });
-
-    it('should return bad request', async () => {
-      const departmentDemo = {
-        name: 'PM',
+      const departmentxx = {
+        name: 'PMMM',
         officephone: '0987654321',
-        manager: 'trungnt',
+        manager: 'trungnnnnn',
       };
+      fakeDepartmentModel.create.mockReturnValue(departmentxx);
+      const saveDepartment = await service.create(departmentxx);
+      expect(saveDepartment.name).toBe(departmentxx.name);
+    });
+  });
 
-      await service.check(departmentDemo.name).catch((e) => {
-        expect(e).toBe(null);
-      });
-      await service.create(departmentDemo).catch((err) => {
-        expect(err).toBeInstanceOf(BadRequestException);
-        expect(err).toMatchObject({
-          message: 'name is unique',
-        });
-      });
+  describe('check create department', () => {
+    it('should be a department', async () => {
+      const department = TestUtil.giveAMeAValidDepartment();
+      fakeDepartmentModel.findOne.mockReturnValue(department);
+
+      expect(await service.checkDepartment(department.name)).toBe(
+        fakeDepartmentModel.findOne(),
+      );
     });
   });
 

@@ -1,10 +1,8 @@
 import {
   Controller,
-  Get,
   Post,
   Body,
   Put,
-  Param,
   Delete,
   UsePipes,
   ValidationPipe,
@@ -13,8 +11,6 @@ import {
   Req,
 } from '@nestjs/common';
 import { LoginService } from './login.service';
-import { CreateLoginDto } from './dto/create-login.dto';
-import { UpdateLoginDto } from './dto/update-login.dto';
 import { LoginDto } from './dto/login.dto';
 import { ChangePass } from './dto/change-pass.dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
@@ -25,8 +21,11 @@ export class LoginController {
   constructor(private readonly loginService: LoginService) {}
 
   @Post('login')
-  async login(@Body() loginDto: LoginDto, @Req() req: any, @Res() res: any) {
-    return await this.loginService.login(loginDto, req, res);
+  async login(@Body() loginDto: LoginDto, @Res() res: any) {
+    const access_token = await this.loginService.login(loginDto);
+    const first = await this.loginService.findUser(loginDto.username);
+
+    return res.json({ access_token, first: first.loginfirst });
   }
 
   @UseGuards(JwtAuthGuard)
@@ -36,12 +35,17 @@ export class LoginController {
     @Req() req: any,
     @Res() res: any,
   ) {
-    return await this.loginService.change(changePass, req, res);
+    const user = await req.user;
+    const first = await this.loginService.change(changePass, user);
+    return res.json({
+      first,
+    });
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete('logout')
-  async logout(@Req() req: any, @Res() res: any) {
-    return await this.loginService.logout(req, res);
+  async logout(@Req() req: any) {
+    const tokenPush = req.headers['Authorization'].slice(7);
+    return await this.loginService.logout(tokenPush);
   }
 }

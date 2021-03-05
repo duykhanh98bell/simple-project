@@ -10,6 +10,8 @@ import {
   UsePipes,
   ValidationPipe,
   UseGuards,
+  BadRequestException,
+  NotFoundException,
 } from '@nestjs/common';
 import { EmployeeService } from '../employee/employee.service';
 import { JwtAuthGuard } from '../login/jwt-auth.guard';
@@ -31,9 +33,14 @@ export class DepartmentController {
     @Body() createDepartmentDto: CreateDepartmentDto,
     @Res() res: any,
   ) {
+    const checkDepartment = await this.departmentService.checkDepartment(
+      createDepartmentDto.name,
+    );
+    if (checkDepartment) throw new BadRequestException('name is unique');
+
     const depart = await this.departmentService.create(createDepartmentDto);
     return res.json({
-      message: 'Tao thanh cong',
+      // message: 'Tao thanh cong',
       depart,
     });
   }
@@ -44,8 +51,12 @@ export class DepartmentController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.departmentService.findOne(id);
+  async findOne(@Param('id') id: string) {
+    const checkDepartment = await this.departmentService.findOne(id);
+    if (!checkDepartment) {
+      throw new NotFoundException('Department not Found');
+    }
+    return checkDepartment;
   }
 
   @Get('employeein/:id')
@@ -63,7 +74,7 @@ export class DepartmentController {
       updateDepartmentDto,
     );
     return {
-      message: 'Cap nhat thanh cong',
+      // message: 'Cap nhat thanh cong',
       updateDepart,
     };
   }
@@ -72,7 +83,7 @@ export class DepartmentController {
   async remove(@Param('id') id: string) {
     const dlt = await this.departmentService.remove(id);
     return {
-      message: 'Xoa thanh cong',
+      // message: 'Xoa thanh cong',
       dlt,
     };
   }

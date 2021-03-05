@@ -3,6 +3,8 @@ import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { EmployeeService } from './employee.service';
 import TestEmployee from './test/TestEmployee';
+import TestUpdateEmployee from './test/TestCreateEmployee';
+import TestCreateEmployee from './test/TestCreateEmployee';
 
 describe('EmployeeService', () => {
   let service: EmployeeService;
@@ -50,7 +52,9 @@ describe('EmployeeService', () => {
     it('should be a employee', async () => {
       const employee = TestEmployee.giveAValidEmployee();
       fakeEmployeeModel.findOne.mockReturnValue(employee);
-      const foundEmpoylee = await service.findOne('600986480dcc0d351c73a716');
+      const foundEmpoylee = await service.findOneEmploye(
+        '600986480dcc0d351c73a716',
+      );
       expect(foundEmpoylee).toMatchObject({
         email: employee.email,
       });
@@ -59,7 +63,7 @@ describe('EmployeeService', () => {
 
     it('should return a exception does not to find a employee', async () => {
       fakeEmployeeModel.findOne.mockReturnValue(null);
-      await service.findOne('600986480dcc0d351c73a718').catch((err) => {
+      await service.findOneEmploye('600986480dcc0d351c73a718').catch((err) => {
         expect(err).toBeInstanceOf(NotFoundException);
       });
       // expect(fakeEmployeeModel.findOne).toHaveBeenCalledTimes(1);
@@ -87,13 +91,22 @@ describe('EmployeeService', () => {
       const saveEmployee = await service.create(employee, file);
       expect(employee).toBe(saveEmployee);
     });
+  });
 
-    it('should be a employee, is exist email and phone', async () => {
-      const file = { filename: 'adfajdfadjkfl.jpg' };
+  describe('check Email', () => {
+    it('should be a employee', async () => {
       const employee = TestEmployee.giveAValidEmployee();
-      await service.create(employee, file).catch((e) => {
-        expect(e).toBeInstanceOf(BadRequestException);
-      });
+      fakeEmployeeModel.findOne.mockReturnValue(employee);
+      const checked = await service.checkEmail('huyhung@gmail.com');
+      expect(fakeEmployeeModel.findOne().name).toBe(checked.name);
+    });
+  });
+  describe('check Phone', () => {
+    it('should be a employee', async () => {
+      const employee = TestEmployee.giveAValidEmployee();
+      fakeEmployeeModel.findOne.mockReturnValue(employee);
+      const checked = await service.checkPhone('1111111116');
+      expect(fakeEmployeeModel.findOne().name).toBe(checked.name);
     });
   });
 
@@ -108,7 +121,7 @@ describe('EmployeeService', () => {
         employee,
         file,
       );
-      expect(update).toMatchObject(employee);
+      expect(update.email).toBe(fakeEmployeeModel.findOne().email);
     });
     it('should be a employee, not exist file', async () => {
       const file = null;
@@ -120,29 +133,25 @@ describe('EmployeeService', () => {
         employee,
         file,
       );
-      expect(update).toMatchObject(employee);
+      expect(update.email).toBe(fakeEmployeeModel.findOne().email);
     });
   });
 
   describe('delete a employee', () => {
     it('should return a exception does not to find a employee', async () => {
-      fakeEmployeeModel.findOne.mockReturnValue(null);
-      await service.findOne('600986480dcc0d351c73a718').catch((err) => {
+      // fakeEmployeeModel.findOne.mockReturnValue(null);
+      await service.findOneEmploye('600985b1dbd6f44cd89b2ad7').catch((err) => {
         expect(err).toBeInstanceOf(NotFoundException);
       });
-      // expect(fakeEmployeeModel.findOne).toHaveBeenCalledTimes(1);
     });
 
     it('should be a employee', async () => {
       const employee = TestEmployee.giveAValidEmployee();
-      fakeEmployeeModel.findOne.mockReturnValue(employee);
       fakeEmployeeModel.findOneAndDelete.mockReturnValue(employee);
 
-      const deleted = await service.remove('600986480dcc0d351c73a716');
+      const deleted = await service.remove('600985b1dbd6f44cd89b2ad6');
 
-      expect(deleted).toBe(employee);
-      expect(fakeEmployeeModel.findOne).toHaveBeenCalledTimes(9);
-      expect(fakeEmployeeModel.findOneAndDelete).toHaveBeenCalledTimes(1);
+      expect(deleted.name).toBe(fakeEmployeeModel.findOneAndDelete().name);
     });
   });
 });

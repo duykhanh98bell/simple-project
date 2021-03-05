@@ -1,5 +1,11 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { getModelToken, InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -10,6 +16,7 @@ import { LoginDto } from './dto/login.dto';
 const bcrypt = require('bcrypt');
 import { createBlackList } from 'jwt-blacklist';
 import { blacklist } from './blacklist';
+import { tokenTest } from './test/tokenTest';
 const jwt = require('jsonwebtoken');
 
 @Injectable()
@@ -18,36 +25,27 @@ export class LoginService {
     @InjectModel('User') private UserModel: Model<UserDocument>,
     private readonly jwtService: JwtService,
   ) {}
-  async login(loginDto: LoginDto, req: any, res: any) {
-    const user = await this.UserModel.findOne({ username: loginDto.username });
-    if (!user)
-      throw new HttpException('User not found', HttpStatus.UNAUTHORIZED);
-    const match = await bcrypt.compare(loginDto.password, user.password);
-    if (!match)
-      throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
-    const access_token = await this.jwtService.sign({ user: user });
+  async login(loginDto: LoginDto) {
+    const user = await this.findUser(loginDto.username);
+    if (!user) throw new NotFoundException('invalid user');
 
-    if (user.loginfirst === true) {
-      return res.status(200).json({
-        message: 'Đăng nhập thành công',
-        user,
-        access_token,
-      });
-    } else {
-      return res.status(202).json({
-        message: `Connect PUT ${process.env.HOST}/auth/change change password`,
-        access_token,
-      });
-    }
+    const match = await bcrypt.compare(loginDto.password, user.password);
+    if (!match) throw new NotFoundException('Invalid credentials');
+
+    const access_token = await this.jwtService.sign({ user: user });
+    tokenTest.access_token = access_token;
+    return access_token;
   }
 
-  async change(changePass: ChangePass, req: any, res: any) {
-    const user = await req.user;
+  async findUser(name: string) {
+    return await this.UserModel.findOne({ username: name });
+  }
+
+  async change(changePass: ChangePass, user: any) {
     if (changePass.newpassword != changePass.repassword)
-      return res.status(400).json({ message: 'Mật khẩu không trùng khớp' });
+      throw new BadRequestException('Mật khẩu không trùng khớp');
     const match = await bcrypt.compare(changePass.password, user.password);
-    if (!match)
-      return res.status(400).json({ message: 'Mật khẩu không chính xác' });
+    if (!match) throw new BadRequestException('Mật khẩu không chính xác');
     const hashedPass = await bcrypt.hash(changePass.newpassword, 12);
     await this.UserModel.findByIdAndUpdate(
       user._id,
@@ -59,15 +57,14 @@ export class LoginService {
       },
       { new: true },
     );
-    return res.status(200).json({ message: 'Thay đổi mật khẩu thành công' });
+    return true;
   }
 
-  async logout(req: any, res: any) {
-    const tokenPush = req.header('Authorization').slice(7);
+  async logout(tokenPush: string) {
     if (tokenPush) {
       const token = jwt.verify(tokenPush, process.env.TOKEN_SECRET);
       blacklist.array.push(token.iat + '-' + token.exp);
     }
-    res.sendStatus(200);
+    return true;
   }
 }

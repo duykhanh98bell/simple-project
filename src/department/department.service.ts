@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  HttpException,
+  HttpStatus,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -19,16 +21,15 @@ export class DepartmentService {
   async create(
     createDepartmentDto: CreateDepartmentDto,
   ): Promise<DepartmentDocument> {
-    await this.check(createDepartmentDto.name);
     const depart = await this.DepartmentModel.create(createDepartmentDto);
     return depart;
   }
 
-  async check(name: string) {
+  async checkDepartment(name: string) {
     const check = await this.DepartmentModel.findOne({
       name: name,
     });
-    if (check) throw new BadRequestException('name is unique');
+    return check;
   }
 
   async findAll(): Promise<DepartmentDocument[]> {
@@ -36,11 +37,7 @@ export class DepartmentService {
   }
 
   async findOne(id: string): Promise<DepartmentDocument | undefined> {
-    const department = await this.DepartmentModel.findOne({ _id: id });
-    if (!department) {
-      throw new NotFoundException('Department not Found');
-    }
-    return department;
+    return await this.DepartmentModel.findOne({ _id: id });
   }
 
   async update(

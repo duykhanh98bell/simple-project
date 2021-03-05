@@ -21,28 +21,28 @@ export class EmployeeService {
     createEmployeeDto: CreateEmployeeDto,
     file: any,
   ): Promise<EmployeeDocument> {
-    const [checkEmail, checkPhone] = await Promise.all([
-      this.EmployeeModel.findOne({
-        email: createEmployeeDto.email,
-      }),
-      this.EmployeeModel.findOne({
-        cellphone: createEmployeeDto.cellphone,
-      }),
-    ]);
-    if (checkEmail) throw new BadRequestException('Email is exist');
-    if (checkPhone) throw new BadRequestException('Phone is exist');
-
     createEmployeeDto.photo = file.filename;
     const create = await this.EmployeeModel.create(createEmployeeDto);
     return create;
   }
 
+  async checkEmail(email: string) {
+    return await this.EmployeeModel.findOne({
+      email: email,
+    });
+  }
+
+  async checkPhone(phone: string) {
+    return await this.EmployeeModel.findOne({
+      phone: phone,
+    });
+  }
   async findAll(): Promise<EmployeeDocument[]> {
     const all = await this.EmployeeModel.find();
     return all;
   }
 
-  async findOne(id: string): Promise<EmployeeDocument> {
+  async findOneEmploye(id: string): Promise<EmployeeDocument> {
     const employee = await this.EmployeeModel.findOne({ _id: id });
     if (!employee) {
       throw new NotFoundException('not found employee');
@@ -60,9 +60,10 @@ export class EmployeeService {
     file: any,
   ): Promise<EmployeeDocument> {
     if (file) {
-      const check = await this.findOne(id);
-
-      await fs.unlinkSync('photo/' + check.photo);
+      const check = await this.findOneEmploye(id);
+      if (fs.existsSync('photo/' + check.photo)) {
+        await fs.unlinkSync('photo/' + check.photo);
+      }
       updateEmployeeDto.photo = file.filename;
       const update = await this.EmployeeModel.findByIdAndUpdate(
         id,
@@ -89,8 +90,10 @@ export class EmployeeService {
   }
 
   async remove(id: string): Promise<EmployeeDocument> {
-    const check = await this.findOne(id);
-    await fs.unlinkSync('photo/' + check.photo);
+    const check = await this.findOneEmploye(id);
+    if (fs.existsSync('photo/' + check.photo)) {
+      await fs.unlinkSync('photo/' + check.photo);
+    }
     return await this.EmployeeModel.findOneAndDelete({ _id: id });
   }
 }
